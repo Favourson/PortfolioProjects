@@ -1,0 +1,89 @@
+/* Apply some basic styles to the entire form */
+form {
+    width: 600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Apply styles to each section of the form */
+  form > section {
+    margin-bottom: 20px;
+  }
+  
+  /* Apply styles to each label element */
+  form label {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  /* Apply styles to each input element */
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="date"],
+  form select,
+  form textarea {
+    width: 250px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+  
+  /* Apply styles to error messages */
+  form .error {
+    color: red;
+    font-size: 14px;
+    margin-left: 5px;
+  }
+  
+  /* Apply styles to the query textarea */
+  form #query {
+    height: 100px;
+  }
+  
+  /* Apply styles to the submit button */
+  form input[type="submit"] {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  
+  /* Apply styles to the form header */
+  form h1{
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  
+  /* Apply styles to the form footer */
+  form footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  /* Apply styles to the query box */
+  form .query-box {
+    background-color: #f2f2f2;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  
+  /* Apply styles to the success message */
+  form .success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+  

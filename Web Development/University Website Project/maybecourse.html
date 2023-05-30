@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CST2340 University Website Design</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css">
+<link rel="stylesheet" href="fontawesome-free-6.3.0-web\css\all.min.css">
+</head>
+<body>
+<section class="sub-header">
+    <nav>
+        <a href="index.html"><img src="images/logo.png"></a>
+        <div class="nav-links" id="navLinks">
+            <i class="fa fa-times" onclick="hideMenu()"></i>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT</a></li>
+                <li><a href="course.html">COURSE</a></li>
+                <li><a href="blog.html">BLOG</a></li>
+                <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="InputStudentID.php">STUDENTS</a></li>
+            </ul>
+        </div>
+        <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Course Catalogue</h1>
+</section>
+
+
+
+<!---------- View all Courses Page --------->
+	<title>University Courses Page</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script>
+		window.onload = function(){
+			document.getElementById('search-btn').addEventListener('click', function(event){
+				event.preventDefault(); // prevent form submission
+				var searchTerm = document.getElementById('course-search').value.toLowerCase();
+				var courses = document.getElementsByClassName('course-details');
+				for(var i=0; i<courses.length; i++){
+					var courseName = courses[i].getElementsByTagName('h3')[0].innerHTML.toLowerCase();
+					if(courseName.includes(searchTerm)){
+						courses[i].style.display = "block";
+					} else {
+						courses[i].style.display = "none";
+					}
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+
+	<div class="container">
+
+		<h1>University Courses</h1>
+
+		<form>
+			<label for="course-search">Search for a Course:</label>
+			<input type="text" id="course-search" name="course-search" placeholder="Enter partial course name">
+			<button type="submit" id="search-btn" class="hero-btn red-btn">Search</button>
+		</form>
+
+		<h2>Courses List:</h2>
+
+		<select id="courses-dropdown">
+			<option value="">Select a Course:</option>
+			<option value="course1">Discovering the arts and humanities</option>
+			<option value="course2">Early modern Europe: society and culture c.1500-1780</option>
+			<option value="course3">Art and visual cultures in the modern world</option>
+			<option value="course4">Exploring art and visual culture</option>
+			<option value="course5">Engineering: mathematics, modelling, applications</option>
+			<option value="course6">Mechanical engineering: heat and flow</option>
+			<option value="course7">Essential economics: macro and micro perspectives</option>
+			<option value="course8">Doing economics: people, markets and policy</option>
+			<option value="course9">English for academic purposes online</option>
+			<option value="course10">Developing subject knowledge for the primary years</option>
+		</select>
+
+		<div class="course-details" id="course1-details">
+			<h3>Discovering the arts and humanities</h3>
+			<p>Description of Course 1: Discovering the arts and humanities: This course provides an introduction to the arts and humanities, exploring their significance and impact on society. Students will engage with a range of disciplines, including literature, history, philosophy, and art.</p>
+			<p>Prerequisites: Course 2, Course 3</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course2-details">
+			<h3>Early modern Europe: society and culture c.1500-1780</h3>
+			<p>Description of Course 2: Early modern Europe: society and culture c.1500-1780: This course explores the history of Europe from the Renaissance to the Enlightenment. Students will learn about the social and cultural changes that occurred during this period, including the rise of nationalism, the emergence of modern science, and the growth of the printing industry.</p>
+			<p>Prerequisites: None</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course3-details">
+			<h3>Art and visual cultures in the modern world</h3>
+			<p>Description of Course 3: Art and visual cultures in the modern world: This course examines the evolution of art and visual cultures from the late 19th century to the present day. Students will explore a range of artistic movements and styles, from modernism to postmodernism, and will consider the social and political contexts in which they emerged.</p>
+			<p>Prerequisites: Course 2</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course4-details">
+			<h3>Exploring art and visual culture</h3>
+			<p>Description of Course 4: Exploring art and visual culture: This course provides an introduction to the study of art and visual culture, covering topics such as art history, aesthetics, and the interpretation of visual texts. Students will develop critical thinking skills and learn to analyze and evaluate different forms of visual communication.</p>
+			<p>Prerequisites: Course 3</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course5-details">
+			<h3>Engineering: mathematics, modelling, applications</h3>
+			<p>Description of Course 5: Engineering: mathematics, modelling, applications: This course covers the fundamental principles of engineering, with a focus on mathematics, modeling, and real-world applications. Students will learn to use mathematical and computational tools to solve engineering problems and design new systems.</p>
+			<p>Prerequisites: Course 1, Course 2, Course 3, Course 4</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+        <div class="course-details" id="course1-details">
+			<h3>Mechanical engineering: heat and flow</h3>
+			<p>Description of Course 6: Mechanical engineering: heat and flow: This course focuses on the principles of thermodynamics and fluid mechanics, with a focus on practical applications in mechanical engineering. Students will learn about heat transfer, fluid flow, and energy conversion, and will develop the skills to design and analyze mechanical systems.</p>
+			<p>Prerequisites: Course 2, Course 3</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course2-details">
+			<h3>Essential economics: macro and micro perspectives</h3>
+			<p>Description of Course 7: Essential economics: macro and micro perspectives: This course provides an introduction to economics, covering both macroeconomic and microeconomic principles. Students will learn about economic concepts such as supply and demand, inflation, and economic growth, and will consider their application in real-world contexts.</p>
+			<p>Prerequisites: None</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course3-details">
+			<h3>Doing economics: people, markets and policy</h3>
+			<p>Description of Course 8: Doing economics: people, markets and policy: This course builds on the principles covered in Essential Economics, with a focus on the application of economic analysis to real-world problems. Students will learn to think critically about economic issues and evaluate policy proposals.</p>
+			<p>Prerequisites: Course 2</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course4-details">
+			<h3>English for academic purposes online</h3>
+			<p>Description of Course 9: English for academic purposes online: This course is designed for non-native speakers of English who are pursuing academic studies in English-speaking countries. It focuses on developing the language skills needed for academic reading, writing, and speaking.</p>
+			<p>Prerequisites: Course 3</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+		<div class="course-details" id="course5-details">
+			<h3>Developing subject knowledge for the primary years</h3>
+			<p>Description of Course 10: Developing subject knowledge for the primary years: This course is designed for teachers and other education professionals who work with young children. It covers the core subjects taught in primary schools, including mathematics, English, science, and history, and provides strategies for teaching these subjects effectively.</p>
+			<p>Prerequisites: Course 1, Course 2, Course 3, Course 4</p>
+			<a href="registration.php" class="hero-btn red-btn">Learn More</a>
+		</div>
+
+	</div>
+
+<!----- Footer from other html pages ------>
+
+<section class="footer">
+    <h4>About Us</h4>
+    <p>Covenant University is a world-class institution committed to academic excellence, leadership development, and positive societal impact. 
+        We offer a wide range of undergraduate, graduate, and postgraduate programs in various fields of study, 
+        with renowned faculty members and state-of-the-art facilities. <br>Contact Us today for more information or visit our <a href="FAQ.html">FAQ</a></p>
+        <div class="icons">
+            <i class="fa-brands fa-facebook"></i>
+            <i class="fa-brands fa-twitter"></i>
+            <i class="fa-brands fa-instagram"></i>
+            <i class="fa-brands fa-linkedin"></i>
+            <i class="fa-brands fa-youtube"></i>
+        </div>
+        <p>Made with <i class="fa-regular fa-heart"></i> by Group HE04</p>
+</section>
+
+
+
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+<script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu(){
+        navLinks.style.right = "0";
+    }
+    function hideMenu(){
+        navLinks.style.right = "-200px";
+    }
+</script>
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+
+
+</body>
+</html>

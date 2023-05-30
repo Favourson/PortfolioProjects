@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CST2340 University Website Design</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css">
+<link rel="stylesheet" href="fontawesome-free-6.3.0-web\css\all.min.css">
+</head>
+<body>
+<section class="sub-header">
+    <nav>
+        <a href="index.html"><img src="images/logo.png"></a>
+        <div class="nav-links" id="navLinks">
+            <i class="fa fa-times" onclick="hideMenu()"></i>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT</a></li>
+                <li><a href="course.html">COURSE</a></li>
+                <li><a href="blog.html">BLOG</a></li>
+                <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="InputStudentID.php">STUDENTS</a></li>
+            </ul>
+        </div>
+        <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Our Online Diary For April-2023</h1>
+</section>
+
+<!----the diary section---->
+<head>
+	<title>Public Diary</title>
+	<style>
+		.entry {
+			margin-bottom: 10px;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		.entry .actions {
+			margin-top: 5px;
+			text-align: right;
+		}
+
+		.delete-button {
+			background-color: #f44336;
+			color: white;
+			border: none;
+			padding: 5px 10px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		.delete-button:hover {
+			background-color: #d32f2f;
+		}
+	</style>
+</head>
+<body>
+	<h1>Public Diary</h1>
+	<form id="entry-form">
+		<label for="entry-text">Write something:</label><br>
+		<textarea id="entry-text" rows="4" cols="50"></textarea><br>
+		<button type="submit" class="hero-btn red-btn">Post</button>
+	</form>
+	<div id="entries-container">
+		<!-- Entries will be added dynamically here -->
+	</div>
+
+	<script>
+		// Define a class to represent each diary entry
+		class DiaryEntry {
+			constructor(text) {
+				this.text = text;
+				this.id = Date.now(); // Generate a unique ID for the entry
+			}
+
+			toHtml() {
+				// Return the HTML representation of the entry
+				return `<div class="entry" data-id="${this.id}">
+							<p>${this.text}</p>
+							<div class="actions">
+								<button class="delete-button">Delete</button>
+							</div>
+						</div>`;
+			}
+		}
+
+		// Define a class to represent the public diary
+		class PublicDiary {
+			constructor() {
+				this.entries = [];
+				this.container = document.getElementById('entries-container');
+				this.form = document.getElementById('entry-form');
+				this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+				this.container.addEventListener('click', this.handleContainerClick.bind(this));
+			}
+
+			handleFormSubmit(event) {
+				event.preventDefault(); // Prevent the form from submitting
+				const text = document.getElementById('entry-text').value;
+				if (text) {
+					// Create a new diary entry and add it to the diary
+					const entry = new DiaryEntry(text);
+					this.entries.push(entry);
+
+					// Add the HTML representation of the entry to the container
+					const entryHtml = entry.toHtml();
+					this.container.insertAdjacentHTML('beforeend', entryHtml);
+
+					// Clear the form
+					document.getElementById('entry-text').value = '';
+				}
+			}
+
+			handleContainerClick(event) {
+				if (event.target.classList.contains('delete-button')) {
+					// Find the entry element that contains the delete button and remove it from the diary and the container
+					const entryElement = event.target.closest('.entry');
+					const entryId = parseInt(entryElement.dataset.id);
+					this.entries = this.entries.filter(entry => entry.id !== entryId);
+					entryElement.remove();
+				}
+			}
+		}
+
+		// Initialize the public diary
+		const diary = new PublicDiary();
+	</script>
+</body>
+</html>
+
+<!----- Footer ------>
+
+<section class="footer">
+    <h4>About Us</h4>
+    <p>Covenant University is a world-class institution committed to academic excellence, leadership development, and positive societal impact. 
+        We offer a wide range of undergraduate, graduate, and postgraduate programs in various fields of study, 
+        with renowned faculty members and state-of-the-art facilities. <br>Contact Us today for more information or visit our <a href="">FAQ</a></p>
+        <div class="icons">
+            <i class="fa-brands fa-facebook"></i>
+            <i class="fa-brands fa-twitter"></i>
+            <i class="fa-brands fa-instagram"></i>
+            <i class="fa-brands fa-linkedin"></i>
+            <i class="fa-brands fa-youtube"></i>
+        </div>
+        <p>Made with <i class="fa-regular fa-heart"></i> by Group HE04</p>
+</section>
+
+
+
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+<script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu(){
+        navLinks.style.right = "0";
+    }
+    function hideMenu(){
+        navLinks.style.right = "-200px";
+    }
+</script>
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+
+
+</body>
+</html>

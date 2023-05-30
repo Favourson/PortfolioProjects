@@ -1,0 +1,130 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+/* Reset styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Global styles */
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+  line-height: 1.5;
+  background-color: #f7f7f7;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1, h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+form {
+  margin-bottom: 40px;
+}
+
+input[type="text"], select {
+  padding: 10px;
+  width: 100%;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+select {
+  background-color: #f7f7f7;
+}
+
+input[type="submit"] {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+input[type="submit"]:hover {
+  background-color: #666;
+}
+
+.course-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.course {
+  width: calc(33.33% - 10px);
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.course:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.course h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.course p {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.course a {
+  display: inline-block;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.course a:hover {
+  background-color: #666;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

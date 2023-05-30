@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CST2340 University Website Design</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css">
+<link rel="stylesheet" href="fontawesome-free-6.3.0-web\css\all.min.css">
+</head>
+<body>
+<section class="sub-header">
+    <nav>
+        <a href="index.html"><img src="images/logo.png"></a>
+        <div class="nav-links" id="navLinks">
+            <i class="fa fa-times" onclick="hideMenu()"></i>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT</a></li>
+                <li><a href="course.html">COURSE</a></li>
+                <li><a href="blog.html">BLOG</a></li>
+                <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="students.php">STUDENTS</a></li>
+            </ul>
+        </div>
+        <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Contact Us</h1>
+</section>
+
+<!----- contact us ------>
+
+<section class="location">
+
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d39646.474580754424!2d-0.2684069499999999!3d51.
+    60663545!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876114ad427dd1d%3A0x3d842a15ed01b58c!2sEdgware!5e0!3m2!
+    1sen!2suk!4v1680700054829!5m2!1sen!2suk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" 
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+</section>
+
+<section class="contact-us">
+    <div class="row">
+        <div class="contact-col">
+            <div>
+                <i class="fa fa-home"></i>
+                <span>
+                    <h5>XYZ Road, ABC Building</h5>
+                    <p>United Kingdom, London, UK</p>
+                </span>
+            </div>
+            <div>
+                <i class="fa fa-phone"></i>
+                <span>
+                    <h5>+44 0123456789</h5>
+                    <p>Monday to Saturday, 10AM to 6PM</p>
+                </span>
+            </div>
+            <div>
+                <i class="fa fa-envelope"></i>
+                <span>
+                    <h5>info@covenantsuk.ac.uk</h5>
+                    <p>Email us your query</p>
+                </span>
+            </div>
+            <div>
+                <h5>Register <a href="registration.php" class="hero-btn red-btn"> here</a> to request more info</h5>
+            </div>
+        </div>
+        <div class="contact-col">
+            <form action="form-handler.php" method="post">
+                <input type="text" name="name" placeholder="Enter your name" required>
+                <input type="email" name="email" placeholder="Enter your email address" required>
+                <input type="text" name="subject" placeholder="Enter your Subject" required>
+                <textarea rows="8" name="message" placeholder="Message" required></textarea>
+                <button type="submit" class="hero-btn red-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+<!----- Footer ------>
+
+<section class="footer">
+    <h4>About Us</h4>
+    <p>Covenant University is a world-class institution committed to academic excellence, leadership development, and positive societal impact. 
+        We offer a wide range of undergraduate, graduate, and postgraduate programs in various fields of study, 
+        with renowned faculty members and state-of-the-art facilities. <br>Contact Us today for more information or visit our <a href="FAQ.html">FAQ</a></p>
+        <div class="icons">
+            <i class="fa-brands fa-facebook"></i>
+            <i class="fa-brands fa-twitter"></i>
+            <i class="fa-brands fa-instagram"></i>
+            <i class="fa-brands fa-linkedin"></i>
+            <i class="fa-brands fa-youtube"></i>
+        </div>
+        <p>Made with <i class="fa-regular fa-heart"></i> by Group HE04</p>
+</section>
+
+
+
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+<script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu(){
+        navLinks.style.right = "0";
+    }
+    function hideMenu(){
+        navLinks.style.right = "-200px";
+    }
+</script>
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+
+</body>
+</html>

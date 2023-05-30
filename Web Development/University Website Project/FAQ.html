@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CST2340 University Website Design</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css">
+<link rel="stylesheet" href="fontawesome-free-6.3.0-web\css\all.min.css">
+</head>
+<body>
+<section class="sub-header">
+    <nav>
+        <a href="index.html"><img src="images/logo.png"></a>
+        <div class="nav-links" id="navLinks">
+            <i class="fa fa-times" onclick="hideMenu()"></i>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT</a></li>
+                <li><a href="course.html">COURSE</a></li>
+                <li><a href="blog.html">BLOG</a></li>
+                <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="InputStudentID.php">STUDENTS</a></li>
+            </ul>
+        </div>
+        <i class="fa fa-bars" onclick="showMenu()"></i>
+    </nav>
+    <h1>Frequently asked Questions</h1>
+</section>
+
+
+
+<!---------- FAQ Page --------->
+<section class="FAQ">
+	<title>Covenant University FAQ</title>
+	<style>
+		/* CSS for the FAQ section */
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+
+		h2 {
+			font-size: 24px;
+			margin-bottom: 50px;
+		}
+
+		h3 {
+			font-size: 18px;
+			margin-bottom: 10px;
+		}
+
+		p {
+			margin-top: 0;
+			line-height: 1.5;
+			text-align: left;
+		}
+
+		.question {
+			margin-bottom: 15px;
+			font-weight: normal;
+			cursor: pointer;
+			text-align: left;
+		}
+
+		.answer {
+			margin-bottom: 10px;
+			text-align: left;
+			display: none;
+			padding: 10px;
+
+		}
+
+		.answer.show {
+			display: list-item;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="question">
+			<h3>What is Covenant University?</h3>
+			<div class="answer">
+				<p>Covenant University is a world-class institution committed to academic excellence, leadership development, and positive societal impact.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>Where is Covenant University located?</h3>
+			<div class="answer">
+				<p>Covenant University is located in Lagos, Nigeria, and also has a branch in London, and runs its Online University as well.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>What programs does Covenant University offer?</h3>
+			<div class="answer">
+				<p>Covenant University offers a wide range of undergraduate, graduate, and postgraduate programs in various fields of study, including engineering, science, social sciences, management, and the arts.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What are the admission requirements for Covenant?</h3>
+			<div class="answer">
+				<p>Admission requirements vary depending on the program of study. Generally, applicants are required to have completed secondary school education and meet certain academic and English language proficiency requirements.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>How do I apply to Covenant University?</h3>
+			<div class="answer">
+				<p>Prospective students can apply to Covenant University online through the university's website or in person at the admissions office.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What is the tuition fee for Covenant University?</h3>
+			<div class="answer">
+				<p>Tuition fees vary depending on the program of study. Prospective students are encouraged to visit the university's website or contact the admissions office for more information.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>Does Covenant University offer scholarships?</h3>
+			<div class="answer">
+				<p>Yes, Covenant University offers scholarships to eligible students based on academic merit and financial need.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What is the student-faculty ratio at Covenant University?</h3>
+			<div class="answer">
+				<p>The student-faculty ratio at Covenant University is 19:1, which ensures personalized attention and support from faculty members.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>Does Covenant University have international students?</h3>
+			<div class="answer">
+				<p>Yes, Covenant University welcomes international students from all over the world.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What kind of facilities does Covenant University offer?</h3>
+			<div class="answer">
+				<p>Covenant University offers state-of-the-art facilities, including modern classrooms, laboratories, libraries, sports facilities, and student accommodation.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>Does Covenant University have a student support system?</h3>
+			<div class="answer">
+				<p>Yes, Covenant University offers a range of student support services, including academic advising, counseling, career services, and student clubs and organizations.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What kind of research does Covenant University conduct?</h3>
+			<div class="answer">
+				<p>Covenant University is committed to promoting research and innovation in various fields of study, including agriculture, engineering, health, and the social sciences.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>Does Covenant University have partnerships with other institutions?</h3>
+			<div class="answer">
+				<p>Yes, Covenant University has partnerships with several universities and research institutions around the world, which offer opportunities for international collaboration and exchange programs.</p>
+			</div>
+		</div>
+
+		<div class="question">
+			<h3>What is the career prospects for Covenant University graduates?</h3>
+			<div class="answer">
+				<p>Covenant University graduates are highly sought after by employers in various industries, and many have gone on to successful careers in academia, research, business, and government.</p>
+			</div>
+		</div>
+        <div class="question">
+			<h3>What is the mission of Covenant University?</h3>
+			<div class="answer">
+				<p>The mission of Covenant University is to raise a new generation of leaders who are capable of transforming their communities and the world through academic excellence, moral and ethical values, and innovation.</p>
+			</div>
+		</div>
+
+		<!-- Add more questions and answers here -->
+
+	</div>
+
+	<script>
+		// JavaScript to toggle answer visibility
+		const questions = document.querySelectorAll('.question');
+
+		questions.forEach(question => {
+			const answer = question.querySelector('.answer');
+
+			question.addEventListener('click', () => {
+				answer.classList.toggle('show');
+			});
+		});
+	</script>
+</section>
+
+<!----- Footer from other html pages ------>
+
+<section class="footer">
+	<section class="footer">
+		<h4><a href="index.html" class="hero-btn red-btn">HOME</a></h4>
+</section>
+
+
+
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+<script>
+    var navLinks = document.getElementById("navLinks");
+    function showMenu(){
+        navLinks.style.right = "0";
+    }
+    function hideMenu(){
+        navLinks.style.right = "-200px";
+    }
+</script>
+<!-----JavaScript code to Toggle menu (viewing in other device mode)------>
+
+
+</body>
+</html>

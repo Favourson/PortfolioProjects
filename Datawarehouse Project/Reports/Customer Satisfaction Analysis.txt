@@ -1,0 +1,118 @@
+CL SCR
+SET SERVEROUTPUT ON
+SET LINESIZE 170
+SET PAGESIZE 30
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- Prompt user to input year and country
+ACCEPT input_year CHAR PROMPT 'Enter the year (YYYY): '
+ACCEPT input_country CHAR PROMPT 'Enter the Country: '
+
+-- Set up titles and columns formatting
+COLUMN Country FORMAT A15 HEADING "Country"
+COLUMN City FORMAT A20 HEADING "City"
+COLUMN Segment FORMAT A15 HEADING "Segment"
+COLUMN NumberOfCustomers FORMAT 9999 HEADING "No.of Customers"
+COLUMN MinRating FORMAT 99 HEADING "Min Rating"
+COLUMN MaxRating FORMAT 99 HEADING "Max Rating"
+COLUMN AverageRating FORMAT 999.99 HEADING "Avg Rating"
+COLUMN TotalSales FORMAT 999,999,999.99 HEADING "Total Sales (USD)"
+COLUMN SalesRatio FORMAT 999.99 HEADING "% of Total Sales"
+COLUMN FavouriteProductCategory FORMAT A25 HEADING "Popular Category"
+
+-- Headers and footers
+TTITLE LEFT 'Report Generated On: ' _DATE RIGHT 'Page: ' FORMAT 999 SQL.PNO SKIP 2 -
+       CENTER 'Customer Satisfaction Analysis' SKIP 1 -
+       CENTER '---------------------------------------------' SKIP 1 -
+       CENTER 'Analysis for Year: &input_year | Country: &input_country' SKIP 2
+BTitle LEFT 'End of Report Section' SKIP 2
+
+-- Main SQL Query
+WITH SatisfactionData AS (
+    SELECT
+        CD.Customer_key,
+        CD.CompanyName,
+        CD.Segment,
+        CD.Country,
+        CD.City,
+        CD.TotalPurchase,
+        SF.Rating,
+        SF.Total_price,
+        SF.Quantity,
+        SF.Product_key,
+        DD.Cal_Year AS OrderYear,
+        PD.CategoryName
+    FROM
+        Customer_Dim CD
+    JOIN
+        Sales_Fact SF ON CD.Customer_key = SF.Customer_key
+    JOIN
+        Date_Dim DD ON SF.Date_key_order = DD.Date_key
+    JOIN
+        Product_Dim PD ON SF.Product_key = PD.Product_key
+    WHERE
+        (UPPER('&input_year') = 'ALL' OR DD.Cal_Year = TO_NUMBER('&input_year')) AND
+        (UPPER(CD.Country) = UPPER('&input_country') OR UPPER('&input_country') = 'ALL')
+),
+ProductCategoryData AS (
+    SELECT
+        Country,
+        City,
+        Segment,
+        CategoryName,
+        SUM(Quantity) AS TotalQuantity  -- Summing the quantity sold per category
+    FROM
+        SatisfactionData
+    GROUP BY
+        Country, City, Segment, CategoryName
+),
+MaxCategory AS (
+    SELECT
+        Country,
+        City,
+        Segment,
+        CategoryName AS FavouriteProductCategory,
+        RANK() OVER (PARTITION BY Country, City, Segment ORDER BY TotalQuantity DESC) AS CategoryRank
+    FROM
+        ProductCategoryData
+),
+AggregatedData AS (
+    SELECT
+        SD.Country,
+        SD.City,
+        SD.Segment,
+        ROUND(AVG(SD.Rating), 2) AS AverageRating,
+        MIN(SD.Rating) AS MinRating,
+        MAX(SD.Rating) AS MaxRating,
+        COUNT(DISTINCT SD.Customer_key) AS NumberOfCustomers,
+        ROUND(SUM(SD.Total_price), 2) AS TotalSales,
+        ROUND((SUM(SD.Total_price) / (SELECT SUM(Total_price) FROM SatisfactionData)) * 100, 2) AS SalesRatio
+    FROM
+        SatisfactionData SD
+    GROUP BY ROLLUP (SD.Country, SD.City, SD.Segment)
+)
+SELECT
+    COALESCE(AD.Country,'**TOTAL:' ) AS Country,
+    COALESCE(AD.City,'All') AS City,
+    AD.Segment,
+    AD.NumberOfCustomers,
+    AD.MinRating,
+    AD.MaxRating,
+    AD.AverageRating,
+    AD.TotalSales,
+    AD.SalesRatio,
+    MC.FavouriteProductCategory
+FROM
+    AggregatedData AD
+LEFT JOIN
+    MaxCategory MC ON AD.Country = MC.Country AND AD.City = MC.City AND AD.Segment = MC.Segment AND MC.CategoryRank = 1
+WHERE
+    NOT (AD.Segment IS NULL AND AD.City IS NULL AND AD.Country IS NOT NULL) 
+ORDER BY
+    AD.Country, AD.City, AD.Segment;
+
+-- Clear Format after the report
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

@@ -1,0 +1,291 @@
+CREATE OR REPLACE PROCEDURE load_new_shippers IS
+BEGIN
+    INSERT INTO Shipper_Dim (Shipper_key, ShipperID, CompanyName)
+    SELECT shipper_key_seq.NEXTVAL, s.ShipperID, UPPER(s.CompanyName)
+    FROM Shippers s
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM Shipper_Dim sd
+        WHERE sd.ShipperID = s.ShipperID
+    );
+        -- Optional: Handle exceptions
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Error handling, for example:
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+        -- Consider rolling back changes if necessary
+        -- ROLLBACK;
+    COMMIT; -- Commit the transaction to make changes permanent
+END;
+/
+
+
+
+----------------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE Load_Customer_Dim AS
+BEGIN
+    INSERT INTO Customer_Dim (
+      Customer_key, CustomerID, CompanyName, City, Country, Segment, TotalPurchase
+    )
+    SELECT
+      get_nextval(),
+      UPPER(c.CustomerID),
+      UPPER(c.CompanyName),
+      UPPER(c.City),
+      UPPER(c.Country),
+      UPPER(c.Segment),
+      CASE 
+        WHEN COALESCE(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 0) < 0 THEN 0 
+        ELSE COALESCE(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 0) 
+      END AS TotalPurchase
+    FROM
+      Customers c
+    LEFT JOIN
+      Orders o ON c.CustomerID = o.CustomerID
+    LEFT JOIN
+      Order_Details od ON o.OrderID = od.OrderID
+    WHERE NOT EXISTS (
+      SELECT 1 FROM Customer_Dim cd WHERE UPPER(cd.CustomerID) = UPPER(c.CustomerID)
+    )
+    GROUP BY
+      c.CustomerID, c.CompanyName, c.City, c.Country, c.Segment;
+
+    -- Optional: Handle exceptions
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Error handling, for example:
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+        -- Consider rolling back changes if necessary
+        -- ROLLBACK;
+
+    COMMIT;  -- Commit the transaction to save the changes
+END;
+
+
+----------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE Load_Employee_Dim AS
+BEGIN
+    INSERT INTO Employee_Dim (
+      Employee_key, EmployeeID, LastName, FirstName, Title
+    )
+    SELECT
+      employee_key_seq.NEXTVAL,
+      EmployeeID,
+      UPPER(LastName),
+      UPPER(FirstName),
+      UPPER(Title)
+    FROM
+      Employees
+    WHERE NOT EXISTS (
+      SELECT 1 FROM Employee_Dim ed WHERE ed.EmployeeID = Employees.EmployeeID
+    );
+
+    -- Optional: Handle exceptions
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Error handling, for example:
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+        -- Consider rolling back changes if necessary
+        -- ROLLBACK;
+
+    COMMIT;  -- Commit the transaction to save the changes
+END;
+/
+
+
+----------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE Load_Product_Dim AS
+BEGIN
+    INSERT INTO Product_Dim (
+        Product_key, 
+        ProductID, 
+        ProductName, 
+        ReorderLevel, 
+        RestockQuantity, 
+        OriginalPrice, 
+        CompanyName, 
+        Country, 
+        CategoryName
+    )
+    SELECT 
+        product_key_seq.NEXTVAL, 
+        p.ProductID, 
+        UPPER(p.ProductName), 
+        GREATEST(0, p.ReorderLevel), 
+        GREATEST(0, p.RestockQuantity),
+        GREATEST(0, p.OriginalPrice),
+        UPPER(s.CompanyName), 
+        UPPER(s.Country), 
+        UPPER(c.CategoryName)
+    FROM 
+        Products p
+    JOIN 
+        Suppliers s ON p.SupplierID = s.SupplierID
+    JOIN 
+        Categories c ON p.CategoryID = c.CategoryID
+    WHERE NOT EXISTS (
+        SELECT 1 FROM Product_Dim pd WHERE pd.ProductID = p.ProductID
+    );
+
+    -- Optional: Handle exceptions
+    EXCEPTION
+      WHEN OTHERS THEN
+        -- Error handling, for example:
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+        -- Consider rolling back changes if necessary
+        -- ROLLBACK;
+
+    COMMIT;  -- Commit the transaction to save the changes
+END;
+/
+
+
+----------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE Insert_Date_Dimension (
+    p_start_date DATE,
+    p_end_date DATE
+) AS
+BEGIN
+    -- Validate the date range input
+    IF p_start_date IS NULL OR p_end_date IS NULL OR p_start_date > p_end_date THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Invalid date range provided.');
+    END IF;
+
+    FOR v_date IN p_start_date..p_end_date LOOP
+        -- Check if the date already exists in Date_Dim
+        IF NOT EXISTS (SELECT 1 FROM Date_Dim WHERE Calendar_date = v_date) THEN
+            INSERT INTO Date_Dim (
+                Date_key, Calendar_date, Day_of_week, Day_Num_Cal_Month, Day_Num_Cal_Year,
+                Cal_Month_Name, Cal_Month_No_in_Year, Cal_Year_Month, Cal_Quarter,
+                Cal_Year_Quarter, Cal_Year
+            ) VALUES (
+                date_key_seq.NEXTVAL,
+                v_date,
+                TO_NUMBER(TO_CHAR(v_date, 'D')),
+                TO_NUMBER(TO_CHAR(v_date, 'DD')),
+                TO_NUMBER(TO_CHAR(v_date, 'DDD')),
+                TO_CHAR(v_date, 'Month'),
+                TO_NUMBER(TO_CHAR(v_date, 'MM')),
+                TO_CHAR(v_date, 'YYYY-MM'),
+                'Q' || TO_CHAR(v_date, 'Q'),
+                TO_CHAR(v_date, 'YYYY') || 'Q' || TO_CHAR(v_date, 'Q'),
+                TO_CHAR(v_date, 'YYYY')
+            );
+        END IF;
+    END LOOP;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Roll back any changes if an error occurs
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20002, 'Error occurred: ' || SQLERRM);
+END;
+/
+
+----------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE load_sales_fact AS
+    v_avg_duration NUMBER;
+    v_count NUMBER;
+BEGIN
+    -- Calculate the average shipping duration and round it to the nearest whole number
+    SELECT ROUND(AVG(ShippedDate - OrderDate)) INTO v_avg_duration
+    FROM Orders
+    WHERE ShippedDate IS NOT NULL AND OrderDate IS NOT NULL;
+
+    FOR rec IN (
+        SELECT 
+            product.Product_key,
+            customer.Customer_key,
+            employee.Employee_key,
+            shipper.Shipper_key,
+            dd_order.Date_key AS Date_key_order,
+            dd_required.Date_key AS Date_key_required,
+            COALESCE(dd_shipped.Date_key, dd_avg_shipped.Date_key, dd_required.Date_key) AS Date_key_shipped,
+            od.Quantity,
+            od.UnitPrice,
+            od.Discount,
+            od.Rating,
+            (od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Total_price,
+            (od.UnitPrice * od.Quantity * od.Discount) AS Total_discount_amount,
+            (od.UnitPrice * od.Quantity * (1 - od.Discount)) - (product.OriginalPrice * od.Quantity) AS Total_profit 
+        FROM 
+            Orders o
+        JOIN 
+            Date_Dim dd_order ON o.OrderDate = dd_order.Calendar_date
+        JOIN 
+            Date_Dim dd_required ON o.RequiredDate = dd_required.Calendar_date
+        LEFT JOIN 
+            Date_Dim dd_shipped ON o.ShippedDate = dd_shipped.Calendar_date
+        LEFT JOIN 
+            Date_Dim dd_avg_shipped ON o.OrderDate + v_avg_duration = dd_avg_shipped.Calendar_date
+        JOIN 
+            Shipper_Dim shipper ON o.ShipVia = shipper.ShipperID
+        JOIN 
+            Employee_Dim employee ON o.EmployeeID = employee.EmployeeID
+        JOIN 
+            Customer_Dim customer ON o.CustomerID = customer.CustomerID
+        JOIN 
+            Order_Details od ON o.OrderID = od.OrderID
+        JOIN 
+            Product_Dim product ON od.ProductID = product.ProductID
+    ) LOOP
+        -- Check if the record already exists in the Sales_Fact table
+        SELECT COUNT(*) INTO v_count
+        FROM Sales_Fact
+        WHERE Product_key = rec.Product_key
+        AND Customer_key = rec.Customer_key
+        AND Employee_key = rec.Employee_key
+        AND Shipper_key = rec.Shipper_key
+        AND Date_key_order = rec.Date_key_order
+        AND Date_key_required = rec.Date_key_required
+        AND Date_key_shipped = rec.Date_key_shipped;
+
+        -- If the record does not exist, then insert it
+        IF v_count = 0 THEN
+            INSERT INTO Sales_Fact (
+                Product_key, 
+                Customer_key, 
+                Employee_key, 
+                Shipper_key, 
+                Date_key_order, 
+                Date_key_required, 
+                Date_key_shipped, 
+                Quantity, 
+                UnitPrice, 
+                Discount, 
+                Rating, 
+                Total_price, 
+                Total_discount_amount, 
+                Total_profit
+            ) VALUES (
+                rec.Product_key,
+                rec.Customer_key,
+                rec.Employee_key,
+                rec.Shipper_key,
+                rec.Date_key_order,
+                rec.Date_key_required,
+                rec.Date_key_shipped,
+                rec.Quantity,
+                rec.UnitPrice,
+                rec.Discount,
+                rec.Rating,
+                rec.Total_price,
+                rec.Total_discount_amount,
+                rec.Total_profit
+            );
+        END IF;
+    END LOOP;
+
+    -- Commit the transaction
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Log the error and raise it
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLCODE || ' - ' || SQLERRM);
+        RAISE;
+END load_sales_fact;
+/
+
+

@@ -1,0 +1,3 @@
+INSERT INTO Shippers VALUES(4, 'Alliance Shippers', '1-800-222-0451');
+INSERT INTO Shippers VALUES(5, 'UPS', '1-800-782-7892');
+INSERT INTO Shippers VALUES(6, 'DHL', '1-800-225-5345');

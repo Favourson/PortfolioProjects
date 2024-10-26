@@ -1,0 +1,119 @@
+-- Clear the screen and set up the environment
+CLEAR SCREEN;
+SET SERVEROUTPUT ON;
+SET LINESIZE 158;
+SET PAGESIZE 25;
+
+-- Set date format for the session
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY HH24:MI:SS';
+
+-- Prompt user to input year, two product categories, and a specific country
+ACCEPT input_year CHAR PROMPT 'Enter the year (YYYY) or type ALL for all years: ';
+ACCEPT input_category1 CHAR PROMPT 'Enter the first Category Name or type ALL for all categories: ';
+ACCEPT input_category2 CHAR PROMPT 'Enter the second Category Name or type ALL for all categories: ';
+ACCEPT input_country CHAR PROMPT 'Enter the Country or type ALL for all countries: ';
+
+-- Set up titles and columns formatting
+COLUMN FirstProductName FORMAT A50 HEADING "First Product";
+COLUMN SecondProductName FORMAT A50 HEADING "Second Product";
+COLUMN Frequency FORMAT 999999 HEADING "Frequency";
+COLUMN TotalRevenue FORMAT 999999990.99 HEADING "Total Revenue (USD)";
+COLUMN AnalysisYear FORMAT A9 HEADING "Year";
+COLUMN AnalysisCountry FORMAT A15 HEADING "Country";
+
+TTITLE LEFT 'Report Generated On: ' _DATE RIGHT 'Page: ' FORMAT 999 SQL.PNO SKIP 2 -
+CENTER 'Market Basket Analysis' SKIP 1 -
+CENTER 'By &input_category1 and &input_category2 | Year: &input_year | Country: &input_country' SKIP 1 -
+CENTER '---------------------------------------------' SKIP 2;
+BTitle LEFT 'End of Report' RIGHT 'Date Printed: ' _DATE SKIP 1;
+
+BREAK ON REPORT
+COMPUTE SUM Label '**TOTAL:' OF TotalRevenue ON REPORT
+
+-- Main SQL Query
+WITH TransactionProducts AS (
+    SELECT
+        s1.Date_key_order,
+        LEAST(s1.Product_key, s2.Product_key) AS FirstProductKey,
+        GREATEST(s1.Product_key, s2.Product_key) AS SecondProductKey
+    FROM
+        Sales_Fact s1
+    JOIN
+        Sales_Fact s2 ON s1.Date_key_order = s2.Date_key_order AND s1.Product_key != s2.Product_key
+    JOIN
+        Date_Dim dd ON s1.Date_key_order = dd.Date_key
+    JOIN
+        Customer_Dim cd ON s1.Customer_key = cd.Customer_key
+    WHERE
+        (UPPER('&input_year') = 'ALL' OR dd.Cal_Year = TO_NUMBER('&input_year')) AND
+        (UPPER('&input_country') = 'ALL' OR UPPER(cd.Country) = UPPER('&input_country'))
+),
+FilteredProducts AS (
+    SELECT
+        tp.Date_key_order,
+        tp.FirstProductKey,
+        tp.SecondProductKey
+    FROM 
+        TransactionProducts tp
+    JOIN
+        Product_Dim pd1 ON tp.FirstProductKey = pd1.Product_key
+    JOIN
+        Product_Dim pd2 ON tp.SecondProductKey = pd2.Product_key
+    WHERE
+        ((UPPER(pd1.CategoryName) = UPPER('&input_category1') OR UPPER('&input_category1') = 'ALL') AND
+         (UPPER(pd2.CategoryName) = UPPER('&input_category2') OR UPPER('&input_category2') = 'ALL')) OR
+        ((UPPER(pd1.CategoryName) = UPPER('&input_category2') OR UPPER('&input_category2') = 'ALL') AND
+         (UPPER(pd2.CategoryName) = UPPER('&input_category1') OR UPPER('&input_category1') = 'ALL'))
+),
+ProductCombinations AS (
+    SELECT
+        pd1.ProductName AS FirstProductName,
+        pd2.ProductName AS SecondProductName,
+        COUNT(*) AS Frequency,
+        SUM(s1.Total_price + s2.Total_price) AS TotalRevenue,
+        (CASE WHEN UPPER('&input_year') = 'ALL' THEN 'All' ELSE '&input_year' END) AS AnalysisYear,
+        (CASE WHEN UPPER('&input_country') = 'ALL' THEN 'All' ELSE '&input_country' END) AS AnalysisCountry
+    FROM 
+        FilteredProducts fp
+    JOIN 
+        Product_Dim pd1 ON fp.FirstProductKey = pd1.Product_key
+    JOIN 
+        Product_Dim pd2 ON fp.SecondProductKey = pd2.Product_key
+    JOIN
+        Sales_Fact s1 ON fp.FirstProductKey = s1.Product_key AND fp.Date_key_order = s1.Date_key_order
+    JOIN
+        Sales_Fact s2 ON fp.SecondProductKey = s2.Product_key AND fp.Date_key_order = s2.Date_key_order
+    GROUP BY
+        CUBE(pd1.ProductName, pd2.ProductName)
+),
+RankedCombinations AS (
+    SELECT
+        FirstProductName,
+        SecondProductName,
+        Frequency,
+        TotalRevenue,
+        AnalysisYear,
+        AnalysisCountry,
+        RANK() OVER (ORDER BY Frequency DESC) AS Rank
+    FROM 
+        ProductCombinations
+    WHERE
+        FirstProductName IS NOT NULL AND SecondProductName IS NOT NULL
+)
+SELECT
+    AnalysisYear,
+    AnalysisCountry,
+    FirstProductName,
+    SecondProductName,
+    Frequency,
+    TotalRevenue
+FROM
+    RankedCombinations
+WHERE
+    Rank <= 10;
+
+-- Clear Format
+CLEAR COLUMNS;
+CLEAR BREAKS;
+CLEAR COMPUTES;
+TTITLE OFF;

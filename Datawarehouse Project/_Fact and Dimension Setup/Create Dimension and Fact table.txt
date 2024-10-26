@@ -1,0 +1,88 @@
+CREATE TABLE Shipper_Dim(
+  Shipper_key NUMBER NOT NULL, 
+  ShipperID   NUMBER NOT NULL UNIQUE, 
+  CompanyName VARCHAR(40) NOT NULL, 
+  PRIMARY KEY (Shipper_key)
+);
+
+CREATE TABLE Customer_Dim(
+  Customer_key NUMBER NOT NULL, 
+  CustomerID   VARCHAR(5) NOT NULL UNIQUE, 
+  CompanyName  VARCHAR(40) NOT NULL, 
+  City         VARCHAR(15), 
+  Country      VARCHAR(15), 
+  Segment      VARCHAR(11) NOT NULL,
+  TotalPurchase  NUMBER(8,2) DEFAULT 0,
+  PRIMARY KEY (Customer_key)
+);
+
+
+CREATE TABLE Employee_Dim(
+  Employee_key NUMBER NOT NULL,
+  EmployeeID NUMBER NOT NULL UNIQUE, 
+  LastName VARCHAR(20) NOT NULL, 
+  FirstName VARCHAR(10) NOT NULL, 
+  Title VARCHAR(30), 
+  PRIMARY KEY (Employee_key)
+);
+
+CREATE TABLE Product_Dim(
+  Product_key NUMBER NOT NULL, 
+  ProductID NUMBER NOT NULL UNIQUE, 
+  ProductName VARCHAR(40) NOT NULL UNIQUE, 
+  ReorderLevel NUMBER DEFAULT 0, 
+  RestockQuantity NUMBER DEFAULT 0,
+  OriginalPrice NUMBER DEFAULT 0,
+  CompanyName VARCHAR(40) NOT NULL, 
+  Country VARCHAR(15), 
+  CategoryName VARCHAR(15) NOT NULL, 
+  PRIMARY KEY (Product_key)
+);
+
+
+CREATE TABLE Date_Dim (
+  Date_key NUMBER NOT NULL,
+  Calendar_date DATE NOT NULL UNIQUE,
+  Day_of_week NUMBER,
+  Day_Num_Cal_Month NUMBER,
+  Day_Num_Cal_Year NUMBER,
+  Cal_Month_Name VARCHAR(20),
+  Cal_Month_No_in_Year NUMBER,
+  Cal_Year_Month VARCHAR(7),
+  Cal_Quarter VARCHAR(3),
+  Cal_Year_Quarter VARCHAR(6),
+  Cal_Year NUMBER,
+  PRIMARY KEY (Date_key),
+  CHECK (Day_of_week BETWEEN 1 AND 7),
+  CHECK (Day_Num_Cal_Month BETWEEN 1 AND 31),
+  CHECK (Cal_Month_No_in_Year BETWEEN 1 AND 12),
+  CHECK (Day_Num_Cal_Year BETWEEN 1 AND 366)
+);
+
+
+CREATE TABLE Sales_Fact (
+    Product_key NUMBER NOT NULL,
+    Customer_key NUMBER NOT NULL,
+    Employee_key NUMBER NOT NULL,
+    Shipper_key NUMBER NOT NULL,
+    Date_key_order NUMBER NOT NULL,
+    Date_key_required NUMBER NOT NULL,
+    Date_key_shipped NUMBER NOT NULL,
+    Quantity NUMBER NOT NULL,
+    UnitPrice NUMBER(6,2) NOT NULL,
+    Discount NUMBER(3,2) NOT NULL,
+    Rating NUMBER NOT NULL,
+    Total_price NUMBER(8,2) NOT NULL,
+    Total_discount_amount NUMBER(8,2) NOT NULL,
+    Total_profit NUMBER NOT NULL,
+    PRIMARY KEY (Product_key, Customer_key, Employee_key, Shipper_key, Date_key_order, Date_key_required, Date_key_shipped),
+    CONSTRAINT fk_product FOREIGN KEY (Product_key) REFERENCES Product_Dim(Product_key),
+    CONSTRAINT fk_customer FOREIGN KEY (Customer_key) REFERENCES Customer_Dim(Customer_key),
+    CONSTRAINT fk_employee FOREIGN KEY (Employee_key) REFERENCES Employee_Dim(Employee_key),
+    CONSTRAINT fk_shipper FOREIGN KEY (Shipper_key) REFERENCES Shipper_Dim(Shipper_key),
+    CONSTRAINT fk_date_order FOREIGN KEY (Date_key_order) REFERENCES Date_Dim(Date_key),
+    CONSTRAINT fk_date_required FOREIGN KEY (Date_key_required) REFERENCES Date_Dim(Date_key),
+    CONSTRAINT fk_date_shipped FOREIGN KEY (Date_key_shipped) REFERENCES Date_Dim(Date_key),
+    CONSTRAINT chk_rating CHECK (Rating BETWEEN 0 AND 10)
+);
+

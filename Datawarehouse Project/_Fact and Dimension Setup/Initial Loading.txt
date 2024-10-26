@@ -1,0 +1,191 @@
+CREATE SEQUENCE shipper_key_seq START WITH 1 INCREMENT BY 1;
+
+INSERT INTO Shipper_Dim (Shipper_key, ShipperID, CompanyName)
+SELECT shipper_key_seq.NEXTVAL, ShipperID, UPPER(CompanyName)
+FROM Shippers;
+
+
+CREATE SEQUENCE customer_key_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE FUNCTION get_nextval RETURN NUMBER IS
+  v_nextval NUMBER;
+BEGIN
+  SELECT customer_key_seq.NEXTVAL INTO v_nextval FROM dual;
+  RETURN v_nextval;
+END;
+/
+
+----------------------------------------------------------------------
+INSERT INTO Customer_Dim (
+  Customer_key, CustomerID, CompanyName, City, Country, Segment, TotalPurchase
+)
+SELECT
+  get_nextval(),
+  UPPER(c.CustomerID),
+  UPPER(c.CompanyName),
+  UPPER(c.City),
+  UPPER(c.Country),
+  UPPER(c.Segment),
+  CASE WHEN COALESCE(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 0) < 0 THEN 0 ELSE COALESCE(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 0) END AS TotalPurchase
+FROM
+  Customers c
+LEFT JOIN
+  Orders o ON c.CustomerID = o.CustomerID
+LEFT JOIN
+  Order_Details od ON o.OrderID = od.OrderID
+GROUP BY
+  c.CustomerID, c.CompanyName, c.City, c.Country, c.Segment;
+
+
+------------------------------------------------------------------------
+CREATE SEQUENCE employee_key_seq START WITH 1 INCREMENT BY 1;
+
+INSERT INTO Employee_Dim (
+  Employee_key, EmployeeID, LastName, FirstName, Title
+)
+SELECT
+  employee_key_seq.NEXTVAL,
+  EmployeeID,
+  UPPER(LastName),
+  UPPER(FirstName),
+  UPPER(Title)
+FROM
+  Employees;
+
+------------------------------------------------------------------------
+CREATE SEQUENCE product_key_seq START WITH 1 INCREMENT BY 1;
+
+INSERT INTO Product_Dim (
+    Product_key, 
+    ProductID, 
+    ProductName, 
+    ReorderLevel, 
+    RestockQuantity, 
+    OriginalPrice, 
+    CompanyName, 
+    Country, 
+    CategoryName
+)
+SELECT 
+    product_key_seq.NEXTVAL, 
+    p.ProductID, 
+    UPPER(p.ProductName), 
+    GREATEST(0, p.ReorderLevel), 
+    GREATEST(0, p.RestockQuantity),
+    GREATEST(0, p.OriginalPrice),
+    UPPER(s.CompanyName), 
+    UPPER(s.Country), 
+    UPPER(c.CategoryName)
+FROM 
+    Products p
+JOIN 
+    Suppliers s ON p.SupplierID = s.SupplierID
+JOIN 
+    Categories c ON p.CategoryID = c.CategoryID;
+
+------------------------------------------------------------------------
+
+CREATE SEQUENCE date_key_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE PROCEDURE Insert_Date_Dimension AS
+    v_date DATE := TO_DATE('1994-01-01', 'YYYY-MM-DD');
+    v_end_date DATE := TO_DATE('1996-12-31', 'YYYY-MM-DD');
+BEGIN
+    DELETE FROM Date_Dim; -- Clear existing data if any
+   
+    WHILE v_date <= v_end_date LOOP
+        INSERT INTO Date_Dim (Date_key, Calendar_date, Day_of_week, Day_Num_Cal_Month, Day_Num_Cal_Year,
+                              Cal_Month_Name, Cal_Month_No_in_Year, Cal_Year_Month, Cal_Quarter,
+                              Cal_Year_Quarter, Cal_Year)
+        VALUES (
+            date_key_seq.NEXTVAL,
+            v_date,
+            TO_NUMBER(TO_CHAR(v_date, 'D')),
+            TO_NUMBER(TO_CHAR(v_date, 'DD')),
+            TO_NUMBER(TO_CHAR(v_date, 'DDD')),
+            TO_CHAR(v_date, 'Month'),
+            TO_NUMBER(TO_CHAR(v_date, 'MM')),
+            TO_CHAR(v_date, 'YYYY-MM'),
+            'Q' || TO_CHAR(v_date, 'Q'),
+            TO_CHAR(v_date, 'YYYY') || 'Q' || TO_CHAR(v_date, 'Q'),
+            TO_CHAR(v_date, 'YYYY')
+        );
+       
+        v_date := v_date + 1; -- Increment date
+    END LOOP;
+   
+    COMMIT;
+END;
+/
+
+exec Insert_Date_Dimension
+
+------------------------------------------------------------------------
+
+DECLARE
+    v_avg_duration NUMBER;
+BEGIN
+    -- Calculate the average shipping duration and round it to the nearest whole number
+    SELECT ROUND(AVG(ShippedDate - OrderDate)) INTO v_avg_duration
+    FROM Orders
+    WHERE ShippedDate IS NOT NULL AND OrderDate IS NOT NULL;
+
+    -- Perform the insert operation using the calculated average duration
+    INSERT INTO Sales_Fact (
+        Product_key, 
+        Customer_key, 
+        Employee_key, 
+        Shipper_key, 
+        Date_key_order, 
+        Date_key_required, 
+        Date_key_shipped, 
+        Quantity, 
+        UnitPrice, 
+        Discount, 
+        Rating, 
+        Total_price, 
+        Total_discount_amount, 
+        Total_profit
+    )
+    SELECT 
+        product.Product_key,
+        customer.Customer_key,
+        employee.Employee_key,
+        shipper.Shipper_key,
+        dd_order.Date_key AS Date_key_order,
+        dd_required.Date_key AS Date_key_required,
+        COALESCE(dd_shipped.Date_key, dd_avg_shipped.Date_key, dd_required.Date_key) AS Date_key_shipped,
+        od.Quantity,
+        od.UnitPrice,
+        od.Discount,
+        od.Rating,
+        (od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Total_price,
+        (od.UnitPrice * od.Quantity * od.Discount) AS Total_discount_amount,
+        (od.UnitPrice * od.Quantity * (1 - od.Discount)) - (product.OriginalPrice * od.Quantity) AS Total_profit 
+    FROM 
+        Orders o
+    JOIN 
+        Date_Dim dd_order ON o.OrderDate = dd_order.Calendar_date
+    JOIN 
+        Date_Dim dd_required ON o.RequiredDate = dd_required.Calendar_date
+    LEFT JOIN 
+        Date_Dim dd_shipped ON o.ShippedDate = dd_shipped.Calendar_date
+    LEFT JOIN 
+        Date_Dim dd_avg_shipped ON o.OrderDate + v_avg_duration = dd_avg_shipped.Calendar_date
+    JOIN 
+        Shipper_Dim shipper ON o.ShipVia = shipper.ShipperID
+    JOIN 
+        Employee_Dim employee ON o.EmployeeID = employee.EmployeeID
+    JOIN 
+        Customer_Dim customer ON o.CustomerID = customer.CustomerID
+    JOIN 
+        Order_Details od ON o.OrderID = od.OrderID
+    JOIN 
+        Product_Dim product ON od.ProductID = product.ProductID;
+
+    -- Commit the transaction
+    COMMIT;
+END;
+/
+
+

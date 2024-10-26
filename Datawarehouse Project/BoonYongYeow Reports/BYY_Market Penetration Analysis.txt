@@ -1,0 +1,87 @@
+CLEAR SCREEN
+SET SERVEROUTPUT ON
+SET LINESIZE 95
+SET PAGESIZE 30
+
+-- Set date format for the session
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY';
+
+-- Prompt user to input year, country, and category name
+ACCEPT input_year CHAR PROMPT 'Enter the year (YYYY): '
+ACCEPT input_category CHAR PROMPT 'Enter the Category Name (or ALL for all categories): '
+ACCEPT input_country CHAR PROMPT 'Enter the Country or type ALL for all countries: '
+
+
+-- Set up titles and columns formatting
+COLUMN CategoryName FORMAT A20 HEADING "Category"
+COLUMN Segment FORMAT A15 HEADING "Segment"
+COLUMN Country FORMAT A15 HEADING "Country"
+COLUMN City FORMAT A15 HEADING "City"
+COLUMN TotalUnitsSold FORMAT 999,999 HEADING "Units Sold"
+COLUMN TotalSalesValue FORMAT 999,999,990.99 HEADING "Sales Value (USD)"
+
+TTITLE LEFT 'Report Generated On: ' _DATE RIGHT 'Page: ' FORMAT 999 SQL.PNO SKIP 2 -
+CENTER 'Market Penetration Analysis' SKIP 1 -
+CENTER '---------------------------------------------' SKIP 1 -
+CENTER 'Analysis for Year: &input_year | Country: &input_country | Category: &input_category' SKIP 2
+BTitle LEFT 'End of Report Section' SKIP 2
+
+-- Main SQL Query
+WITH ProductSalesData AS (
+    SELECT 
+        p.ProductName,
+        p.CategoryName,
+        c.Segment,
+        c.Country,
+        c.City,
+        s.Quantity,
+        s.Total_price
+    FROM 
+        Sales_Fact s
+    JOIN 
+        Product_Dim p ON s.Product_key = p.Product_key
+    JOIN 
+        Customer_Dim c ON s.Customer_key = c.Customer_key
+    JOIN
+        Date_Dim d ON s.Date_key_order = d.Date_key
+    WHERE
+        (UPPER('&input_country') = 'ALL' OR UPPER(c.Country) = UPPER('&input_country')) AND
+        (UPPER('&input_year') = 'ALL' OR d.Cal_Year = TO_NUMBER('&input_year')) AND
+        (UPPER(p.CategoryName) = UPPER('&input_category') OR UPPER('&input_category') = 'ALL')
+),
+AggregatedData AS (
+    SELECT
+        CategoryName,
+        Segment,
+        Country,
+        City,
+        SUM(Quantity) AS TotalUnitsSold,
+        SUM(Total_price) AS TotalSalesValue
+    FROM 
+        ProductSalesData
+    GROUP BY 
+        ROLLUP (CategoryName, Segment, Country, City)
+)
+SELECT 
+    COALESCE(AD.CategoryName,'**TOTAL:') AS Category,
+    COALESCE(AD.Segment,'ALL') as Segment,
+    COALESCE(AD.Country, 'All Countries') AS Country,
+    AD.City,
+    AD.TotalUnitsSold,
+    AD.TotalSalesValue
+FROM 
+    AggregatedData AD
+WHERE 
+    NOT (
+        (AD.CategoryName IS NOT NULL AND AD.Segment IS NOT NULL AND AD.Country IS NULL AND AD.City IS NULL)  -- Exclude specific overlap
+        OR (AD.CategoryName IS NOT NULL AND AD.Segment IS NULL AND AD.Country IS NULL AND AD.City IS NULL)  -- Exclude category-only rows
+    )
+    OR (AD.CategoryName IS NULL AND AD.Segment IS NULL AND AD.Country IS NULL AND AD.City IS NULL)  -- Include total row
+ORDER BY 
+    CategoryName, Segment, Country, City;
+
+-- Clear Format after the report
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

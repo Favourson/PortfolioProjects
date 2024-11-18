@@ -1,4 +1,4 @@
-Project 3: Bollinger Bands Strategy
+#Project 3: Bollinger Bands Strategy
 
 ![image](https://github.com/user-attachments/assets/bee5de89-4e85-4c5c-bfb5-9656e827672c)
 

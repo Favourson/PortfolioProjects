@@ -1,4 +1,7 @@
 Project 3: Bollinger Bands Strategy
+
+![image](https://github.com/user-attachments/assets/bee5de89-4e85-4c5c-bfb5-9656e827672c)
+
 Overview
 This project implements a Bollinger Bands Strategy using historical stock data. The strategy buys shares when the price crosses above the middle band (SMA) and sells shares when the price crosses below the middle band. The code uses Yahoo Finance to fetch historical data, calculates Bollinger Bands, generates buy/sell signals, backtests the strategy, calculates additional performance metrics, and plots the results.
 

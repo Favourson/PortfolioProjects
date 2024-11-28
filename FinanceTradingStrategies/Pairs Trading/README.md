@@ -110,6 +110,7 @@ The output plot will show:
 ---
 
 ## Output Example  
-*plot of the strategy results*
+![PS1](https://github.com/user-attachments/assets/f20d6f95-386e-4780-9a0a-68b0913163dd)
+
 
 ---

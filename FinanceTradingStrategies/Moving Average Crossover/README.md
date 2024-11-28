@@ -89,6 +89,7 @@ The output plot will show:
 ---
 
 ## Output Example  
+![MA1](https://github.com/user-attachments/assets/ee89d093-3794-403e-87c7-38a5449a3676)
 
 
 ---

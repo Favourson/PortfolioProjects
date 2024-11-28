@@ -116,5 +116,11 @@ The output includes the following visualizations:
 
 ## Output Example  
 *output plots showing the Bollinger Bands strategy results and performance metrics*
+![bb1](https://github.com/user-attachments/assets/e94992ae-d712-4398-a15a-45d97060654d)
+![bb2](https://github.com/user-attachments/assets/df11201e-2956-4623-9bd7-8cb84cfdc955)
+![bb3](https://github.com/user-attachments/assets/75484b98-8887-4e0c-a00b-241e42353a3a)
+![bb4](https://github.com/user-attachments/assets/e1a45641-ea5b-4fad-89fd-352b8c84ab7d)
+![bb5](https://github.com/user-attachments/assets/df8cc4da-38b3-4e8c-8737-ca8e73bf0527)
+![bb6](https://github.com/user-attachments/assets/19f49f86-51a7-474a-a494-ed88bada5e3b)
 
 ---
